@@ -104,7 +104,6 @@ async function startServer(program) {
   }
 
   // Check if the file exists in the public folder.
-  app.get(`*`, (req, res, next) => {
   // Load file but ignore errors.
   app.use(express.static(__dirname + `/public`))
 
