@@ -85,8 +85,6 @@ async function startServer(program) {
     })
   )
 
-  app.use(express.static(__dirname + `/public`))
-
   app.use(
     require(`webpack-dev-middleware`)(compiler, {
       noInfo: true,
@@ -106,31 +104,8 @@ async function startServer(program) {
   }
 
   // Check if the file exists in the public folder.
-  app.get(`*`, (req, res, next) => {
-    // Load file but ignore errors.
-    res.sendFile(
-      directoryPath(`/public/${decodeURIComponent(req.url)}`),
-      err => {
-        // No err so a file was sent successfully.
-        if (!err || !err.path) {
-          next()
-        } else if (err) {
-          // There was an error. Let's check if the error was because it
-          // couldn't find an HTML file. We ignore these as we want to serve
-          // all HTML from our single empty SSR html file.
-          const parsedPath = parsePath(err.path)
-          if (
-            parsedPath.extname === `` ||
-            parsedPath.extname.startsWith(`.html`)
-          ) {
-            next()
-          } else {
-            res.status(404).end()
-          }
-        }
-      }
-    )
-  })
+  // Load file but ignore errors.
+  app.use(express.static(__dirname + `/public`))
 
   // Render an HTML page and serve it.
   app.use((req, res, next) => {
@@ -142,7 +117,8 @@ async function startServer(program) {
         }
       })
     } else {
-      next()
+      // The file wasn't captured in the static output, and it's not an HTML file.
+      res.status(404).end()
     }
   })
 
