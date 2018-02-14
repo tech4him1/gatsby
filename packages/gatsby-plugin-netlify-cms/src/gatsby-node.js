@@ -47,6 +47,7 @@ function module(config, stage) {
       return config
     case `build-javascript`:
       excludeFromLoader(`css`, config)
+      excludeFromLoader(`js`, config)
 
       // Exclusively extract Netlify CMS styles to /cms.css (filename configured
       // above with plugin instantiation).
@@ -54,6 +55,11 @@ function module(config, stage) {
         test: /\.css$/,
         include: [/\/node_modules\/netlify-cms\//],
         loader: ExtractTextPlugin.extract([`css`]),
+      })
+      config.loader(`cms-js`, {
+        test: /\.js$/,
+        include: [/\/node_modules\/netlify-cms\//],
+        loader: 'babel-loader',
       })
       return config
     default:
